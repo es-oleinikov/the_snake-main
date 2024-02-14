@@ -76,7 +76,7 @@ class Snake(GameObject):
             self.direction = self.next_direction
             self.next_direction = None
 
-    def get_head_position(self) -> tuple:
+    def get_head_position(self):
         """Возвращает координаты первого квадрата змейки."""
         return self.positions[0]
 
@@ -151,20 +151,28 @@ class Apple(GameObject):
 
 
 def handle_keys(game_object):
-    """Обрабатывает нажатия клавиши и задает направление движения."""
+    """
+    Обрабатывает нажатия клавиши и задает направление движения,
+    изменяет скорость движения.
+    """
+    directions_comb = {
+        (pygame.K_UP, RIGHT): UP,
+        (pygame.K_UP, LEFT): UP,
+        (pygame.K_DOWN, RIGHT): DOWN,
+        (pygame.K_DOWN, LEFT): DOWN,
+        (pygame.K_RIGHT, UP): RIGHT,
+        (pygame.K_RIGHT, DOWN): RIGHT,
+        (pygame.K_LEFT, UP): LEFT,
+        (pygame.K_LEFT, DOWN): LEFT,
+    }
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and game_object.direction != DOWN:
-                game_object.next_direction = UP
-            elif event.key == pygame.K_DOWN and game_object.direction != UP:
-                game_object.next_direction = DOWN
-            elif event.key == pygame.K_LEFT and game_object.direction != RIGHT:
-                game_object.next_direction = LEFT
-            elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
-                game_object.next_direction = RIGHT
+            combination = (event.key, game_object.direction)
+            if combination in directions_comb:
+                game_object.next_direction = directions_comb[combination]
             elif event.key == pygame.K_PAGEUP:
                 global SPEED
                 SPEED += 5
