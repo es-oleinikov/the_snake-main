@@ -63,7 +63,7 @@ class Snake(GameObject):
     def __init__(self, body_color=SNAKE_COLOR):
         """Конструктор класса Snake."""
         super().__init__(body_color)
-        self.position = START_POSITION
+        self.position = self.position
         self.length = 1
         self.positions = [self.position]
         self.direction = RIGHT
@@ -82,16 +82,10 @@ class Snake(GameObject):
 
     def move(self):
         """Двигает змейку по полю."""
-        new_x_coord = (
-            self.get_head_position()[0] + (self.direction[0] * GRID_SIZE)
-        )
-        if 0 > new_x_coord or new_x_coord > (SCREEN_WIDTH - GRID_SIZE):
-            new_x_coord = (new_x_coord % SCREEN_WIDTH)
-        new_y_coord = (
-            self.get_head_position()[1] + (self.direction[1] * GRID_SIZE)
-        )
-        if 0 > new_y_coord or new_y_coord > (SCREEN_HEIGHT - GRID_SIZE):
-            new_y_coord = (new_y_coord % SCREEN_HEIGHT)
+        new_x_coord = ((self.get_head_position()[0]
+                        + (self.direction[0] * GRID_SIZE)) % SCREEN_WIDTH)
+        new_y_coord = ((self.get_head_position()[1]
+                        + (self.direction[1] * GRID_SIZE)) % SCREEN_HEIGHT)
         new_head_position = (new_x_coord, new_y_coord)
         if new_head_position in self.positions:
             self.reset()
@@ -209,5 +203,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-appple = Apple()
