@@ -46,24 +46,25 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс."""
 
-    def __init__(self, body_color=BASE_COLOR, position=START_POSITION):
+    def __init__(self, body_color=BASE_COLOR):
         """Конструктор класса GameObject."""
-        self.position = position
+        self.position = START_POSITION
         self.body_color = body_color
 
     def draw(self):
         """Абстрактный метод отрисовки."""
+        print(f'Вызван абстрактный метод класса {self.__class__.__name__}')
         raise NotImplementedError
 
 
 class Snake(GameObject):
     """Класс, описывающий змейку."""
 
-    def __init__(self, body_color=SNAKE_COLOR, position=START_POSITION):
+    def __init__(self, body_color=SNAKE_COLOR):
         """Конструктор класса Snake."""
-        super().__init__(body_color, position)
+        super().__init__(body_color)
+        self.position = START_POSITION
         self.length = 1
-        self.position = position
         self.positions = [self.position]
         self.direction = RIGHT
         self.next_direction = None
@@ -94,7 +95,8 @@ class Snake(GameObject):
         new_head_position = (new_x_coord, new_y_coord)
         if new_head_position in self.positions:
             self.reset()
-        self.positions.insert(0, new_head_position)
+        else:
+            self.positions.insert(0, new_head_position)
         if len(self.positions) > self.length:
             self.last = self.positions[-1]
             self.positions.pop(-1)
@@ -124,8 +126,7 @@ class Snake(GameObject):
     def reset(self):
         """Сбрасывает состояние змейки в исходное положение."""
         self.length = 1
-        self.positions = GameObject.start_position
-        self.positions = [self.position]
+        self.positions = [START_POSITION]
         self.direction = choice((LEFT, RIGHT, UP, DOWN))
         screen.fill(BOARD_BACKGROUND_COLOR)
 
@@ -133,7 +134,7 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Класс описывает Яблоко."""
 
-    def __init__(self, body_color=APPLE_COLOR, position=START_POSITION):
+    def __init__(self, body_color=APPLE_COLOR):
         """Конструктор класса Apple."""
         super().__init__(body_color)
         self.position = self.randomize_position()
@@ -170,6 +171,14 @@ def handle_keys(game_object):
                 game_object.next_direction = LEFT
             elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
                 game_object.next_direction = RIGHT
+            elif event.key == pygame.K_PAGEUP:
+                global SPEED
+                SPEED += 5
+            elif event.key == pygame.K_PAGEDOWN:
+                if SPEED > 5:
+                    SPEED -= 5
+                else:
+                    SPEED = 1
 
 
 def main():
@@ -177,14 +186,17 @@ def main():
     pygame.init()
     snake = Snake(SNAKE_COLOR)
     apple = Apple(APPLE_COLOR)
+    global record
+    record = 0
     while True:
-        record = 0
         clock.tick(SPEED)
         handle_keys(snake)
         snake.update_direction()
         snake.move()
         snake.draw(screen)
         apple.draw(screen)
+        if len(snake.positions) == 1:
+            record = 0
         if apple.position in snake.positions:
             record += 1
             snake.length += 1
@@ -193,8 +205,9 @@ def main():
                 apple.randomize_position()
             apple.draw(screen)
         pygame.display.update()
-        print(record)
 
 
 if __name__ == '__main__':
     main()
+
+appple = Apple()
