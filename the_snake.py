@@ -150,7 +150,7 @@ class Apple(GameObject):
         pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
 
 
-def handle_keys(game_object):
+def handle_keys(game_object, record):
     """
     Обрабатывает нажатия клавиши и задает направление движения,
     изменяет скорость движения.
@@ -168,6 +168,7 @@ def handle_keys(game_object):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            save_record(record)
             raise SystemExit
         elif event.type == pygame.KEYDOWN:
             combination = (event.key, game_object.direction)
@@ -183,29 +184,35 @@ def handle_keys(game_object):
                     SPEED = 1
 
 
+def save_record(record):
+    """Выводит рекорд сессии и сохраняет в файл"""
+    message = f'Session record: {record}.'
+    print(message)
+    with open('records.txt', 'a') as r:
+        r.write(message)
+
+
 def main():
     """Обрабатывает основной цикл игры."""
     pygame.init()
     snake = Snake(SNAKE_COLOR)
     apple = Apple(APPLE_COLOR)
-    global record
     record = 0
     while True:
         clock.tick(SPEED)
-        handle_keys(snake)
+        handle_keys(snake, record)
         snake.update_direction()
         snake.move()
         snake.draw(screen)
         apple.draw(screen)
-        if len(snake.positions) == 1:
-            record = 0
         if apple.position in snake.positions:
-            record += 1
             snake.length += 1
             apple.randomize_position()
             while apple.position in snake.positions:
                 apple.randomize_position()
             apple.draw(screen)
+        if snake.length > record:
+            record = snake.length
         pygame.display.update()
 
 
